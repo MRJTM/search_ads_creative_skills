@@ -1,0 +1,3 @@
+display_name: "Search Ads Cover Optimize"
+short_description: "Select or lightly edit the best existing image as the ad cover, matching explicit query intent before generic aesthetics."
+default_prompt: "Use the $search-ads-query-cover-optimize skill: given a search query, candidate images and the current cover id, detect explicit intent (color/style/SKU), score every image with intent match ranked above generic beauty, pick the best cover balancing click appeal and landing consistency, and return the selected image id, scores, reason, selling points and an edit prompt only if no existing image matches."

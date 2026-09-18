@@ -1,0 +1,3 @@
+display_name: "Search Ads Title Rewrite"
+short_description: "Condense and front-load verifiable facts to rewrite ad titles for search queries."
+default_prompt: "Use the $search-ads-query-title-rewrite skill: given a search query, the original title and verified facts, diagnose title defects, pick a front-loading strategy, and produce a 10-30 word (or concise Chinese) rewritten title using only verifiable information, with a red-line self-check."

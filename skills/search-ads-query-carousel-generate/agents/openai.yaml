@@ -1,0 +1,3 @@
+display_name: "Search Ads Carousel Generate"
+short_description: "Plan a 3-5 slide ad carousel from image understanding and a query-driven hook-to-detail storyline."
+default_prompt: "Use the $search-ads-query-carousel-generate skill: given a search query, candidate images and the current cover id, first understand each image's subject, scene, detail, completeness and aesthetics, then plan a 3-5 slide storyline (cover hook, on-body proof, style/scene, detail close-out) where each slide uses reuse or edit with a real image_id, or generate with image_id -1, plus ~10-word overlay copy consistent with the image and query."
