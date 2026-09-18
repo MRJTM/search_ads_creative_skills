@@ -1,13 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "cd webs/front && npm install",
-  "buildCommand": "cd webs/front && npm run build",
-  "outputDirectory": "webs/front/dist",
-  "functions": {
-    "app.py": {
-      "includeFiles": "{agent/**,webs/backend/**}"
+  "builds": [
+    {
+      "src": "webs/front/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    },
+    {
+      "src": "app.py",
+      "use": "@vercel/python",
+      "config": { "includeFiles": "{agent/**,webs/backend/**}" }
     }
-  },
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/app.py" },
     { "source": "/materials/(.*)", "destination": "/app.py" },
