@@ -5,7 +5,7 @@
   "outputDirectory": "webs/front/dist",
   "functions": {
     "app.py": {
-      "includeFiles": ["agent/**", "webs/backend/**"]
+      "includeFiles": "{agent/**,webs/backend/**}"
     }
   },
   "rewrites": [
