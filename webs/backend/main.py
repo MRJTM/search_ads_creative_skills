@@ -1,13 +1,14 @@
 import json
 import os
 import threading
+import time
 from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Dict, Iterator, List
+from typing import Dict, Iterator, List, Optional, Tuple
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 
 from agent import providers
 from agent.config import settings
@@ -51,7 +52,44 @@ _session_locks: Dict[str, threading.Lock] = {}
 _session_lock_users: Dict[str, int] = {}
 
 
+def _supabase_public_url(filename: str) -> str:
+    """Public URL of one object in the materials bucket on Supabase Storage."""
+    base = (settings.SUPABASE_URL or "").rstrip("/")
+    return (
+        f"{base}/storage/v1/object/public/"
+        f"{settings.SUPABASE_STORAGE_BUCKET}/{filename}"
+    )
+
+
+# Remote catalog cache: material assets live in Supabase Storage when
+# SUPABASE_URL is configured (Vercel has no local materials directory), so the
+# catalog is fetched from the bucket's public URL and reused for a short TTL.
+_REMOTE_CATALOG_TTL_SECONDS = 300.0
+_catalog_cache: Optional[Tuple[float, dict]] = None
+
+
 def _load_catalog() -> dict:
+    global _catalog_cache
+    if settings.SUPABASE_URL:
+        now = time.time()
+        if _catalog_cache and now - _catalog_cache[0] < _REMOTE_CATALOG_TTL_SECONDS:
+            return _catalog_cache[1]
+        try:
+            resp = providers.get_http_client().get(
+                _supabase_public_url("catalog.json"), timeout=15
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception:
+            data = None
+        if data is not None:
+            _catalog_cache = (now, data)
+            return data
+        if _catalog_cache:
+            # Serve the last good copy rather than failing the request.
+            return _catalog_cache[1]
+        # No remote copy yet (and none cached): fall through to the local file
+        # so local development without uploaded assets keeps working.
     with open(settings.CATALOG_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -252,12 +290,20 @@ def chat(req: ChatRequest) -> ChatResponse:
 
 
 @app.get("/materials/{filename}")
-def material_file(filename: str) -> FileResponse:
+def material_file(filename: str):
     catalog = _load_catalog()
     allowed = {img["filename"] for img in catalog["images"]}
     # strict whitelist check; rejects traversal, absolute paths, etc.
     if filename not in allowed or "/" in filename or "\\" in filename or ".." in filename:
         raise HTTPException(status_code=404, detail="Not found")
+    if settings.SUPABASE_URL:
+        # Assets live in Supabase Storage; send the browser straight to the
+        # bucket's public URL (cached so repeat views skip this round-trip).
+        return RedirectResponse(
+            _supabase_public_url(filename),
+            status_code=302,
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
     path = os.path.abspath(os.path.join(settings.MATERIALS_DIR, filename))
     materials_root = os.path.abspath(settings.MATERIALS_DIR)
     if not path.startswith(materials_root + os.sep) or not os.path.isfile(path):

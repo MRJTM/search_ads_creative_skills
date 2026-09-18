@@ -1,0 +1,2 @@
+# Python dependencies for the Vercel function entrypoint (app.py).
+-r webs/backend/requirements.txt

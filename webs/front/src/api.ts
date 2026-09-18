@@ -1,6 +1,10 @@
 import type { AgentChatResponse, MaterialsResponse, SkillSummary } from './types';
 
-const API_BASE: string = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
+// Prod defaults to same-origin (Vercel rewrites /api & /materials to the
+// backend function); dev falls back to the local uvicorn server.
+const API_BASE: string =
+  import.meta.env.VITE_API_BASE_URL ??
+  (import.meta.env.PROD ? '' : 'http://localhost:8000');
 
 export function imageUrl(filename: string): string {
   return `${API_BASE}/materials/${filename}`;

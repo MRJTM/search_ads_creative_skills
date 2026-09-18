@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd webs/front && npm install",
+  "buildCommand": "cd webs/front && npm run build",
+  "outputDirectory": "webs/front/dist",
+  "functions": {
+    "app.py": {
+      "includeFiles": ["agent/**", "webs/backend/**"]
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/app.py" },
+    { "source": "/materials/(.*)", "destination": "/app.py" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

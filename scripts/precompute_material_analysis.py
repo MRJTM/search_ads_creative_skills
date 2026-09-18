@@ -19,7 +19,7 @@ Usage (from the repository root):
     python scripts/precompute_material_analysis.py                # fill misses
     python scripts/precompute_material_analysis.py --force        # re-analyze all
     python scripts/precompute_material_analysis.py --workers 3
-    python scripts/precompute_material_analysis.py --catalog tmp/materials/catalog.json
+    python scripts/precompute_material_analysis.py --catalog materials/catalog.json
 
 Exit codes: 0 all requested images analyzed; 1 partial failures (catalog still
 updated with the successes); 2 provider/key not configured; 3 no image

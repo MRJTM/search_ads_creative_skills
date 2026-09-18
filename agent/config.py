@@ -5,6 +5,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Repo root (agent/..). Defaults below resolve against it so the backend works
+# the same when launched from the repo root locally and from a Vercel function
+# where the working directory may differ.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 class Settings:
     # TOPAPI_* is the current naming. Keep TOAPIS_* as a compatibility fallback
@@ -42,9 +47,16 @@ class Settings:
     SUPABASE_SECRET_KEY: Optional[str] = (
         os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_KEY") or None
     )
-    SUPABASE_STORAGE_BUCKET: str = os.getenv("SUPABASE_STORAGE_BUCKET", "materials")
-    MATERIALS_DIR: str = os.getenv("MATERIALS_DIR", "tmp/materials")
-    CATALOG_PATH: str = os.getenv("CATALOG_PATH", "tmp/materials/catalog.json")
+    # This repo's demo-materials bucket on Supabase Storage (public read).
+    SUPABASE_STORAGE_BUCKET: str = os.getenv(
+        "SUPABASE_STORAGE_BUCKET", "search_ads_creative_skills"
+    )
+    MATERIALS_DIR: str = os.getenv(
+        "MATERIALS_DIR", os.path.join(_REPO_ROOT, "materials")
+    )
+    CATALOG_PATH: str = os.getenv(
+        "CATALOG_PATH", os.path.join(_REPO_ROOT, "materials", "catalog.json")
+    )
 
     @property
     def has_api_key(self) -> bool:

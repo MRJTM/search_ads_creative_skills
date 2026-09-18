@@ -9,4 +9,8 @@ dist/
 build/
 *.egg-info/
 .DS_Store
+.vercel/
 tmp/
+# Demo assets live in the Supabase Storage bucket `search_ads_creative_skills`;
+# keep the local copy out of the repository.
+materials/

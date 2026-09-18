@@ -1,0 +1,14 @@
+.git
+.env
+.env.*
+.vercel
+.venv
+venv
+.pytest_cache
+.vercelignore
+tmp
+webs/front/node_modules
+webs/front/dist
+**/__pycache__
+**/*.pyc
+.DS_Store

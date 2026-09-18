@@ -89,10 +89,11 @@ Skill，并把更新后的创意实时渲染成搜索广告预览（多图在上
 ├── webs/
 │   ├── backend/   # FastAPI 服务（materials / skills / agent chat 接口）
 │   └── front/     # React 18 + TypeScript + Vite 前端
-└── tmp/materials/ # AI 生成的示例素材与 catalog.json（本地运行时使用，不入库）
+└── materials/     # 示例素材本地副本（不入库；线上从 Supabase Storage 读取）
 ```
 
-**API 一览**（前端基址由 `VITE_API_BASE_URL` 配置，默认 `http://localhost:8000`）：
+**API 一览**（前端基址由 `VITE_API_BASE_URL` 配置；本地开发默认 `http://localhost:8000`，
+Vercel 生产环境默认同源，无需额外配置）：
 
 | 接口 | 说明 |
 | --- | --- |
@@ -134,6 +135,28 @@ IMAGE_MODEL=gpt-image-2
 
 完整配置项见 `.env.example`。
 
+## ☁️ Vercel 部署（单项目，前后端同仓）
+
+前后端部署为**同一个 Vercel 项目**：Vercel 构建 `webs/front` 静态资源，`/api/*` 与
+`/materials/*` 由根目录的 `app.py`（FastAPI Serverless Function）处理，其余路径兜底
+到 SPA 的 `index.html`，前后端同源、无 CORS 问题。路由与构建配置都在 `vercel.json`
+中，导入仓库时 Framework Preset 选 **Other** 即可。
+
+部署步骤：
+
+1. GitHub 仓库导入 Vercel（New Project → Import），Preset 选 **Other**；
+2. 在 Settings → Environment Variables 配置：
+   - `TOPAPI_API_KEY`（必需，模型调用密钥）
+   - `SUPABASE_URL`（必需，素材从 Supabase Storage bucket
+     `search_ads_creative_skills` 公开读取；`/api/materials` 直接拉取 bucket 中的
+     catalog.json，`/materials/{filename}` 302 到 bucket 公开 URL）
+   - `SUPABASE_STORAGE_BUCKET`（可选，默认 `search_ads_creative_skills`）
+   - `TOPAPI_BASE_URL`、`AGENT_MODEL`、`VISION_MODEL` 等可选，默认值见 `.env.example`
+3. Deploy。
+
+本地也可以用 Vercel CLI 部署：`vercel --prod`（环境变量仍需在 Dashboard 配置，
+`.env` 不会上传）。
+
 ## 🔧 单独运行 Skill（CLI）
 
 不启动服务，通过 stdin 传入 JSON 即可独立验证某个 Skill：
@@ -148,7 +171,7 @@ printf '%s' '{"query":"蓝色封面","images":[{"id":3,"filename":"dress-blue-st
   | python skills/search-ads-query-cover-optimize/scripts/run.py
 
 # 轮播生成
-python -c 'import json; c=json.load(open("tmp/materials/catalog.json")); print(json.dumps({"query":"生成轮播","images":c["images"],"current_cover_id":c["initial_cover_image_id"]}))' \
+python -c 'import json; c=json.load(open("materials/catalog.json")); print(json.dumps({"query":"生成轮播","images":c["images"],"current_cover_id":c["initial_cover_image_id"]}))' \
   | python skills/search-ads-query-carousel-generate/scripts/run.py
 ```
 
@@ -175,10 +198,14 @@ cd webs/front && npm run build
 ## 🗺️ Roadmap
 
 - [ ] **Supabase provider**：商品/素材元数据存 Supabase，图片走对象存储，与本地
-      `tmp/materials` provider 同接口、环境变量切换
+      `materials` provider 同接口、环境变量切换
 - [ ] 会话与 trace 持久化，支持跨设备续聊
 - [ ] 兼容自训练模型替换闭源 API 作为 Agent 大脑
 
 ## 📎 素材说明
 
 仓库内示例图片均为 **AI 生成的测试素材**，仅用于演示与自动化测试，不代表任何真实商品。
+素材（图片 + `catalog.json`）托管在 Supabase Storage 的公开 bucket
+`search_ads_creative_skills` 中；仓库里的 `materials/` 只是本地开发副本，不进入
+版本库。配置 `SUPABASE_URL` 后，网页的图片与 catalog 均来自 Supabase 暴露的公开
+URL。
