@@ -10,11 +10,11 @@
 
 ## 🌐 在线体验
 
-> 🚧 体验站点正在部署中，Vercel 部署完成后入口链接将更新在此处。
+**体验入口**：[https://search-ads.zhijiecao-me.com](https://search-ads.zhijiecao-me.com)
 
-<!-- TODO: Vercel 部署完成后，替换为实际访问地址，例如 https://querycraft.vercel.app -->
-
-**体验入口**：`Coming soon`
+打开即可体验：在 **主页** 输入一个搜索 query 并选择素材，Agent 会自动完成素材理解、
+策略诊断与创意生成；**Agent 体验** 页支持多轮对话；**Skills** 页可查看各 Skill 的
+输入输出契约与示例。
 
 ## ✨ Skill 能力总览
 

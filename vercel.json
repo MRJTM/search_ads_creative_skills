@@ -1,20 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "builds": [
-    {
-      "src": "webs/front/package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
-    },
-    {
-      "src": "app.py",
-      "use": "@vercel/python",
-      "config": { "includeFiles": "{agent/**,webs/backend/**}" }
+  "buildCommand": "cd webs/front && npm ci && npm run build",
+  "outputDirectory": "webs/front/dist",
+  "functions": {
+    "api/app.py": {
+      "includeFiles": "{../agent/**,../webs/backend/**}"
     }
-  ],
+  },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/app.py" },
-    { "source": "/materials/(.*)", "destination": "/app.py" },
+    { "source": "/api/(.*)", "destination": "/api/app.py" },
+    { "source": "/materials/(.*)", "destination": "/api/app.py" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

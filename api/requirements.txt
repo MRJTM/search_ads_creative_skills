@@ -1,0 +1,8 @@
+# Python dependencies for the api/app.py serverless function.
+# Keep in sync with webs/backend/requirements.txt; this copy is self-contained
+# because @vercel/python's requirements parser does not support `-r` includes.
+fastapi>=0.110,<0.116
+pydantic>=2.5,<3
+httpx>=0.26,<0.29
+Pillow>=10.0,<12
+python-dotenv>=1.0,<2
